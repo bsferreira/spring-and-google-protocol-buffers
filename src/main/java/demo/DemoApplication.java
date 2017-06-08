@@ -8,7 +8,12 @@ import org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
+import javax.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -77,5 +82,17 @@ class CustomerRestController {
     @RequestMapping("/customers/{id}")
     CustomerProtos.Customer customer(@PathVariable Integer id) {
         return this.customerRepository.findById(id);
+    }
+
+    @RequestMapping("/customers/")
+    ResponseEntity<?> saveCustomer(HttpServletRequest req) throws IOException {
+        // TODO create a parser to receive any content type and return a generic parsed object
+        if(req.getContentType().equals(MediaType.APPLICATION_JSON_VALUE)){
+            String json = req.getReader().lines().collect(Collectors.joining());
+            return ResponseEntity.ok().body(json);
+        } else {
+            CustomerProtos.Customer protoRequestObj = CustomerProtos.Customer.parseFrom(req.getInputStream());
+            return ResponseEntity.ok().body(protoRequestObj);
+        }
     }
 }
