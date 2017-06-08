@@ -183,6 +183,17 @@ class CustomerRestController {
     CustomerProtos.Customer customer(@PathVariable Integer id) {
         return this.customerRepository.findById(id);
     }
+    
+    @RequestMapping("/customers/")
+    ResponseEntity<?> saveCustomer(HttpServletRequest req) throws IOException {
+        if(req.getContentType().equals(MediaType.APPLICATION_JSON_VALUE)){
+            String json = req.getReader().lines().collect(Collectors.joining());
+            return ResponseEntity.ok().body(json);
+        } else {
+            CustomerProtos.Customer protoRequestObj = CustomerProtos.Customer.parseFrom(req.getInputStream());
+            return ResponseEntity.ok().body(protoRequestObj);
+        }
+    }
 }
 ```
 
